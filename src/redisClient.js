@@ -1,7 +1,6 @@
 const url = require('url');
 const redis = require('redis');
 
-console.log(process.env.REDIS_URL);
 const redisURL = url.parse(process.env.REDIS_URL);
 const redisClient = redis.createClient(redisURL.port, redisURL.hostname);
 

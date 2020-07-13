@@ -1,12 +1,15 @@
 const Discord = require('discord.js');
 const fs = require('fs');
-const { token, prefix } = require('./config/conf.json');
+const { prefix } = require('./config/conf.json');
+const redisClient = require('./redisClient');
+const { calculateTimeAndSetReminder } = require('./commands/setdonate');
 
 const client = new Discord.Client();
 
 // Event Handlers
 const handleReady = () => {
-	console.log('Ready');
+    console.log('Ready');
+    loadData();
 };
 
 const handleMessage = (message) => {
@@ -22,7 +25,7 @@ const handleMessage = (message) => {
 		if (command) {
 			command.execute(message, args);
 		}
-	} catch (e) {
+	} catch (e) { 
 		console.log('uncaught error: ', e);
 		message.channel.send('something went wrong, check the logs');
 	}
@@ -35,7 +38,7 @@ function addEventListeners() {
 }
 
 function login() {
-	client.login(token);
+	client.login(process.env.TOKEN);
 }
 
 function loadCommands() {
@@ -49,9 +52,18 @@ function loadCommands() {
 	}
 }
 
+function loadData() {
+    redisClient.hgetall('donations', (err, reminders) => {
+        for (let guildId in reminders) {
+            const reminderArgs = JSON.parse(reminders[guildId]);
+            calculateTimeAndSetReminder(client, guildId, reminderArgs);
+        }
+    });
+}
+
 function initializeBot() {
 	addEventListeners();
-	loadCommands();
+    loadCommands();
 	login();
 }
 

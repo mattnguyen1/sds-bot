@@ -3,6 +3,7 @@ const execute = (message) => {
 };
 
 module.exports = {
-	name: 'ping',
+    name: 'ping',
+    description: 'Healthcheck command',
 	execute,
 };

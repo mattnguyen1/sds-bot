@@ -1,24 +1,21 @@
 const chrono = require('chrono-node');
 const redisClient = require('../redisClient');
 const {
-	getRoleId, getChannelId, getAllUsersWithRole, assignRoleToUser, setIntervalAfterTime, assignRoleToUsers,
+	getRoleId, getChannelId, getAllUsersWithRole, assignRoleToUser, setIntervalAfterTime, assignRoleToUsers, stringifyJSON
 } = require('../utils');
 const { set } = require('./donate');
 
 const TIME_IN_DAY_MS = 24 * 60 * 60 * 1000;
 const reminderCache = {};
 
-/**
- * @param {Message} message
- * @param {Object[]} args - setdonate <channel> <src-role> <new-role> <semantic time>
- */
-const execute = (message, args) => {
-	const [channelStr, srcRoleStr, newRoleStr, ...semanticTimeArr] = args;
-	const channelPromise = message.client.channels.fetch(getChannelId(channelStr));
-	const srcRolePromise = message.guild.roles.fetch(getRoleId(srcRoleStr));
-    const newRolePromise = message.guild.roles.fetch(getRoleId(newRoleStr));
+const calculateTimeAndSetReminder = async (client, guildId, args) => {
+    const {channelId, srRoleId, newRoleId, semanticTimeArr} = args;
+    const guild = client.guilds.resolve(guildId);
+    const channelPromise = client.channels.fetch(channelId);
+	const srcRolePromise = guild.roles.fetch(srRoleId);
+    const newRolePromise = guild.roles.fetch(newRoleId);
     
-    const existingTimer = reminderCache[message.guild.id];
+    const existingTimer = reminderCache[guildId];
     if (existingTimer) {
         clearTimeout(existingTimer);
     }
@@ -41,6 +38,9 @@ const execute = (message, args) => {
         // Set the cache for what the donation is role is for the channel's guild
         set(channel.guild.id, newRole);
 
+        // Set redis cache
+        redisClient.hset('donations', channel.guild.id, stringifyJSON(args));
+
 		// Start the daily timer which will
 		// 1. Output all people who have the newRole
 		// 2. Assign all people who have srcRole with newRole
@@ -58,12 +58,28 @@ const execute = (message, args) => {
         }, timeUntilRemind, 5000, (timeoutId) => {
             reminderCache[channel.guild.id] = timeoutId;
         });
-        message.react('✅');
-	});
+    });
+};
+
+/**
+ * @param {Message} message
+ * @param {Object[]} args - setdonate <channel> <src-role> <new-role> <semantic time>
+ */
+const execute = (message, args) => {
+	const [channelStr, srcRoleStr, newRoleStr, ...semanticTimeArr] = args;
+    calculateTimeAndSetReminder(message.client, message.guild.id, {
+        channelId: getChannelId(channelStr),
+        srcRoleId: getRoleId(srcRoleStr),
+        newRoleId: getRoleId(newRoleStr),
+        semanticTimeArr,
+    });
+    message.react('✅');
 };
 
 module.exports = {
     name: 'setdonate',
-    description: 'setdonate <channel> <src-role> <new-role> <semantic time>',
-	execute,
+    description: 'Assigns a donation role to all users of a given role at the specified time each day. Will also output all users who have the donation role before assigning.',
+    example: 'setdonate <channel> <src-role> <new-role> <semantic time>',
+    execute,
+    calculateTimeAndSetReminder,
 };
