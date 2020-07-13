@@ -79,7 +79,8 @@ const execute = (message, args) => {
 module.exports = {
     name: 'setdonate',
     description: 'Assigns a donation role to all users of a given role at the specified time each day. Will also output all users who have the donation role before assigning.',
-    example: 'setdonate <channel> <src-role> <new-role> <semantic time>',
+    usage: 'setdonate <channel> <src-role> <new-role> <semantic time>',
+    example: 'setdonate #bots @Guild @Donation 12pm PDT',
     execute,
     calculateTimeAndSetReminder,
 };

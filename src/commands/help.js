@@ -9,9 +9,10 @@ const execute = (message, args) => {
     const { channel } = message;
     const helpCommands = message.client.commands.filter((cmd) => !!cmd.description).map((cmd) => {
         let helpMessage = cmd.description;
-        if (cmd.example) helpMessage += '\n\n example:\n\t\t `' + cmd.example + '`';
+        if (cmd.usage) helpMessage += '\n\n usage:\n\t\t `' + prefix + cmd.usage + '`';
+        if (cmd.example) helpMessage += '\n example:\n\t\t `' + prefix + cmd.example + '`';
         return {
-            name: cmd.name,
+            name: prefix + cmd.name,
             value: helpMessage,
         }
     });
