@@ -8,6 +8,13 @@ const { set } = require('./donate');
 const TIME_IN_DAY_MS = 24 * 60 * 60 * 1000;
 const reminderCache = {};
 
+const clearCacheTimeout = (guildId) => {
+    if (guildId in reminderCache) {
+        clearTimeout(reminderCache[guildId]);
+        delete reminderCache[guildId];
+    }
+}
+
 const calculateTimeAndSetReminder = async (client, guildId, args) => {
     const {channelId, srRoleId, newRoleId, semanticTimeArr} = args;
     const guild = client.guilds.resolve(guildId);
@@ -55,7 +62,7 @@ const calculateTimeAndSetReminder = async (client, guildId, args) => {
             assignRoleToUsers(usersWithSrcRole, newRole)
                 .then(channel.send('Donation roles have been assigned!'))
                 .catch((reason) => channel.send(`An error has occurred: \`\`\` ${reason} \`\`\``));
-        }, timeUntilRemind, 5000, (timeoutId) => {
+        }, timeUntilRemind, TIME_IN_DAY_MS, (timeoutId) => {
             reminderCache[channel.guild.id] = timeoutId;
         });
     });
@@ -83,4 +90,5 @@ module.exports = {
     example: 'setdonate #bots @Guild @Donation 12pm PDT',
     execute,
     calculateTimeAndSetReminder,
+    clearCacheTimeout,
 };

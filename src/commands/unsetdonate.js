@@ -1,9 +1,11 @@
 const redisClient = require('../redisClient');
+const { clearCacheTimeout } = require('./setdonate');
 
 const execute = (message, args) => {
     const { guild, } = message;
     
     redisClient.hdel('donations', guild.id, () => {
+        clearCacheTimeout(guild.id);
         message.react('✅')
     });
 };
