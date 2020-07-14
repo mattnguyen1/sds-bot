@@ -16,10 +16,10 @@ const clearCacheTimeout = (guildId) => {
 }
 
 const calculateTimeAndSetReminder = async (client, guildId, args) => {
-    const {channelId, srRoleId, newRoleId, semanticTimeArr} = args;
+    const {channelId, srcRoleId, newRoleId, semanticTimeArr} = args;
     const guild = client.guilds.resolve(guildId);
     const channelPromise = client.channels.fetch(channelId);
-	const srcRolePromise = guild.roles.fetch(srRoleId);
+	const srcRolePromise = guild.roles.fetch(srcRoleId);
     const newRolePromise = guild.roles.fetch(newRoleId);
     
     const existingTimer = reminderCache[guildId];
@@ -56,9 +56,13 @@ const calculateTimeAndSetReminder = async (client, guildId, args) => {
             const usersWithNewRole = await getAllUsersWithRole(channel.guild, newRole);
             const usersWithNewRoleStr = usersWithNewRole.map((user) => `<@${user.id}>`).join(', ');
             channel.send(`The following users have not donated: ${usersWithNewRoleStr}`);
+            // console.log("Users with new role: ", usersWithNewRole);
+            // console.log("New role: ", newRole);
 
             // 2. Assign all people who have srcRole with newRole
             const usersWithSrcRole = await getAllUsersWithRole(channel.guild, srcRole);
+            // console.log("Users with role: ", usersWithSrcRole);
+            // console.log("Src role: ", srcRole);
             assignRoleToUsers(usersWithSrcRole, newRole)
                 .then(channel.send('Donation roles have been assigned!'))
                 .catch((reason) => channel.send(`An error has occurred: \`\`\` ${reason} \`\`\``));
