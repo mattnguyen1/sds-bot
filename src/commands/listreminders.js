@@ -29,7 +29,7 @@ const execute = async (message, args) => {
 
 module.exports = {
     name: 'listreminders',
-    description: 'List all reminders of the message\'s guild.',
+    description: 'Lists your reminders in the server.',
     usage: 'reminddaily list',
     execute,
 };
