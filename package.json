@@ -19,7 +19,8 @@
   "dependencies": {
     "chrono-node": "^1.4.6",
     "discord.js": "^12.2.0",
-    "redis": "^3.0.2"
+    "redis": "^3.0.2",
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
     "eslint": "^7.4.0",

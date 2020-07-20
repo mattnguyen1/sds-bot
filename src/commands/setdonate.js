@@ -18,6 +18,12 @@ const clearCacheTimeout = (guildId) => {
 const calculateTimeAndSetReminder = async (client, guildId, args) => {
     const {channelId, srcRoleId, newRoleId, semanticTimeArr} = args;
     const guild = client.guilds.resolve(guildId);
+    
+    // Mainly for handling two separate bots using the same redis instances
+    if (!guild) {
+        return;
+    }
+
     const channelPromise = client.channels.fetch(channelId);
 	const srcRolePromise = guild.roles.fetch(srcRoleId);
     const newRolePromise = guild.roles.fetch(newRoleId);

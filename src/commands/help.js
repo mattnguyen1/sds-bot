@@ -1,15 +1,11 @@
 const Discord = require('discord.js');
-const fs = require('fs');
 const { prefix } = require('../config/conf.json');
-const { DiscordAPIError } = require('discord.js');
-
-
 
 const execute = (message, args) => {
     const { channel } = message;
     const helpCommands = message.client.commands.filter((cmd) => !!cmd.description).map((cmd) => {
         let helpMessage = cmd.description;
-        if (cmd.usage) helpMessage += '\n\n usage:\n\t\t `' + prefix + cmd.usage + '`';
+        if (cmd.usage) helpMessage += '\n usage:\n\t\t `' + prefix + cmd.usage + '`';
         if (cmd.example) helpMessage += '\n example:\n\t\t `' + prefix + cmd.example + '`';
         return {
             name: prefix + cmd.name,

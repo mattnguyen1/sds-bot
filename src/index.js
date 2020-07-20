@@ -59,6 +59,11 @@ function loadData() {
             calculateTimeAndSetReminder(client, guildId, reminderArgs);
         }
     });
+    client.commands.forEach((command) => {
+        if (command.load) {
+            command.load(client);
+        }
+    });
 }
 
 function initializeBot() {
